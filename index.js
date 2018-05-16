@@ -31,7 +31,7 @@ class ExpressSecurity {
         return payload;
     }
 
-    securise(operation, params) {
+    securise(operation, params = ()=>{}) {
         return async (req, res, next) => {
             try {
                 let currentUser = req.user || this.validateToken(req.headers.authorization);

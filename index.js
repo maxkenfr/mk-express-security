@@ -36,7 +36,7 @@ class ExpressSecurity {
             try {
                 let currentUser = req.user || this.validateToken(req.headers.authorization);
                 req.user = currentUser;
-                let isAuthorized = await this.hrbac.can(currentUser.roles, operation, params);
+                let isAuthorized = await this.hrbac.can(currentUser.roles, operation, params(currentUser, req));
                 if (!isAuthorized) throw 'Unauthorize';
                 next();
             }

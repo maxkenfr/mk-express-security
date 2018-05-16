@@ -1,7 +1,25 @@
 {
+  "name": "mk-express-security",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "dependencies": {
     "debug": "^3.1.0",
     "jsonwebtoken": "^8.2.1",
     "validate.js": "^0.12.0"
-  }
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maxkenfr/mk-express-security.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maxkenfr/mk-express-security/issues"
+  },
+  "homepage": "https://github.com/maxkenfr/mk-express-security#readme"
 }

@@ -20,15 +20,26 @@ class ExpressSecurity {
     }
 
     validateToken(bearer) {
-        if (!bearer) throw 'No bearer provided';
-        let decryptedBearer = this.encryption.decrypt(bearer.replace('Bearer ', ''));
-        let payload = jwt.verify(decryptedBearer, this.secretJWT);
-        if (validate(payload, {
-            roles: {presence: true},
-            _id: {presence: true},
-        })) throw 'Unauthorized';
-        if (payload.iat >= payload.exp) throw 'Unauthorized';
-        return payload;
+        try {
+            if (!bearer) throw 'No bearer provided';
+            let decryptedBearer = this.encryption.decrypt(bearer.replace('Bearer ', ''));
+            let payload = jwt.verify(decryptedBearer, this.secretJWT);
+            if (validate(payload, {
+                roles: {presence: true},
+                _id: {presence: true},
+            })) throw 'Unauthorized';
+            if (payload.iat >= payload.exp) throw 'Unauthorized';
+            return {
+                ...payload,
+                authenticated : true
+            };
+        }
+        catch (e) {
+            return {
+                authenticated : false,
+                roles : ['guest']
+            };
+        }
     }
 
     securise(operation, params = ()=>{}) {

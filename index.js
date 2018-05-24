@@ -9,7 +9,7 @@ class ExpressSecurity {
         return new ExpressSecurity(opts);
     }
 
-    constructor({roles = {}, encryptionPass = '', secretJWT = ''}) {
+    constructor({roles = {}, encryptionPass = '', secretJWT = '', transformError}) {
         this.hrbac = new HRBAC(roles);
         this.encryption = new Encryption(encryptionPass);
         this.secretJWT = secretJWT;
@@ -48,11 +48,11 @@ class ExpressSecurity {
                 let currentUser = req.user || this.validateToken(req.headers.authorization);
                 req.user = currentUser;
                 let isAuthorized = await this.hrbac.can(currentUser.roles, operation, params(currentUser, req));
-                if (!isAuthorized) throw 'Unauthorize';
+                if (!isAuthorized) throw 'not authorized';
                 next();
             }
             catch (e) {
-                res.status(401).send('Unauthorize');
+                this.transformError ? await this.transformError(req, res, next) : res.status(403).send('Forbidden');
             }
         }
     }

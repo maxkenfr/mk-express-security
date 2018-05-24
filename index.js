@@ -13,6 +13,7 @@ class ExpressSecurity {
         this.hrbac = new HRBAC(roles);
         this.encryption = new Encryption(encryptionPass);
         this.secretJWT = secretJWT;
+        this.transformError = transformError;
     }
 
     generateToken(_id, roles, data = {}, expire = '30d') {

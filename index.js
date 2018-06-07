@@ -9,18 +9,19 @@ class ExpressSecurity {
         return new ExpressSecurity(opts);
     }
 
-    constructor({roles = {}, encryptionPass = '', secretJWT = '', transformError}) {
+    constructor({roles = {}, encryptionPass = '', secretJWT = '', transformError, transformPayload}) {
         this.hrbac = new HRBAC(roles);
         this.encryption = new Encryption(encryptionPass);
         this.secretJWT = secretJWT;
         this.transformError = transformError;
+        this.transformPayload = transformPayload;
     }
 
     generateToken(_id, roles, data = {}, expire = '30d') {
         return this.encryption.encrypt(jwt.sign({...data, _id, roles}, this.secretJWT, {expiresIn: expire}))
     }
 
-    validateToken(bearer) {
+    async validateToken(bearer) {
         try {
             if (!bearer) throw 'No bearer provided';
             let decryptedBearer = this.encryption.decrypt(bearer.replace('Bearer ', ''));
@@ -30,6 +31,7 @@ class ExpressSecurity {
                 _id: {presence: true},
             })) throw 'Unauthorized';
             if (payload.iat >= payload.exp) throw 'Unauthorized';
+            if(this.transformPayload) payload = await this.transformPayload(payload);
             return {
                 ...payload,
                 authenticated : true
@@ -46,7 +48,7 @@ class ExpressSecurity {
     access(operation, params = ()=>{}) {
         return async (req, res, next) => {
             try {
-                let currentUser = req.user || this.validateToken(req.headers.authorization);
+                let currentUser = req.user || await this.validateToken(req.headers.authorization);
                 req.user = currentUser;
                 let isAuthorized = await this.hrbac.can(currentUser.roles, operation, await params(currentUser, req));
                 if (!isAuthorized) throw 'not authorized';

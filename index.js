@@ -48,14 +48,14 @@ class ExpressSecurity {
     access(operation, params = ()=>{}) {
         return async (req, res, next) => {
             try {
-                let currentUser = req.user || await this.validateToken(req.headers.authorization);
-                req.user = currentUser;
-                let isAuthorized = await this.hrbac.can(currentUser.roles, operation, await params(currentUser, req));
-                if (!isAuthorized) throw 'not authorized';
+                req.user = req.user || await this.validateToken(req.headers.authorization);
+                let authParams = await this.hrbac.can(req.user.roles, operation, await params(req.user, req));
+                if (!authParams) throw 'not authorized';
+                req.authParams = typeof authParams === 'object' ? authParams : {};
                 next();
             }
             catch (e) {
-                this.transformError ? await this.transformError(req, res, next) : res.status(403).send('Forbidden');
+                this.transformError ? await this.transformError(e, req, res, next) : res.status(403).send('Forbidden');
             }
         }
     }

@@ -13,13 +13,13 @@ function any(promises) {
                 })
                 .then(result => {
                     if(result) {
-                        throw new Error('authorized');
+                        throw result;
                     }
                 })
         )
     )
         .then(() => false)
-        .catch(err => err && err.message === 'authorized');
+        .catch(result => result);
 }
 
 function isGlob(string) {

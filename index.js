@@ -49,9 +49,9 @@ class ExpressSecurity {
         return async (req, res, next) => {
             try {
                 req.user = req.user || await this.validateToken(req.headers.authorization);
-                let authParams = await this.hrbac.can(req.user.roles, operation, await params(req.user, req));
-                if (!authParams) throw 'not authorized';
-                req.authParams = typeof authParams === 'object' ? authParams : {};
+                let auth = await this.hrbac.can(req.user.roles, operation, await params(req.user, req));
+                if (!auth) throw 'not authorized';
+                req.restriction = typeof auth === 'object' ? auth : {};
                 next();
             }
             catch (e) {
